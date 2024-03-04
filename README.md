@@ -7,5 +7,6 @@ This deploys:
 
 ## Usage
 - Install Terraform
-- Run `terraform init` in root directory.
+- Run `terraform init` in root directory to setup Terraform & providers.
 - Run `terraform plan` to view changes.
+- Run `terraform apply` to apply changes.
