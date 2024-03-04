@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Update the package manager
-apt update
+sudo apt update
 
 # Install the WebServer NGINX
-apt install nginx
+sudo apt install nginx -y
