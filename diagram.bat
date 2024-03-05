@@ -1,0 +1,1 @@
+pluralith graph --local-only --out-dir "." --show-costs

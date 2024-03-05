@@ -19,7 +19,7 @@ sudo touch /etc/nginx/sites-available/cloudbuild
 sudo ln -s /etc/nginx/sites-available/cloudbuild /etc/nginx/sites-enabled
 
 # Append new configuration to CloudBuild NGINX config
-sudo echo <<EOF
+sudo echo <<-EOF
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -48,7 +48,7 @@ EOF >> /etc/nginx/sites-available/cloudbuild
 sudo rm -r /var/www/html/*
 
 # Create new CRUD index file.
-sudo echo <<EOF
+sudo echo <<-EOF
 <!DOCTYPE html>
 <html>
 <head>
