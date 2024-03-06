@@ -7,7 +7,7 @@ sudo apt update
 sudo apt install nginx -y
 
 # Install PHP module for NGINX
-sudo apt install php8.1-fpm -y
+sudo apt install php5-common php5-cli php5-fpm -y
 
 # Remove the old default landing page symbolic link
 sudo rm /etc/nginx/sites-enabled/default
@@ -19,7 +19,7 @@ sudo touch /etc/nginx/sites-available/cloudbuild
 sudo ln -s /etc/nginx/sites-available/cloudbuild /etc/nginx/sites-enabled
 
 # Append new configuration to CloudBuild NGINX config
-sudo echo <<-EOF
+sudo cat <<-EOF > /etc/nginx/sites-available/cloudbuild
 server {
     listen 80 default_server;
     listen [::]:80 default_server;
@@ -35,30 +35,22 @@ server {
     }
 
     location ~ \.php$ {
-        fastcgi_pass unix:/run/php/php8.1-fpm.sock;
-    }
-
-    location ~ /\.ht {
-        deny all;
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass unix:/var/run/php5-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi_params;
     }
 }
-EOF >> /etc/nginx/sites-available/cloudbuild
+EOF
 
 # Remove old website files
 sudo rm -r /var/www/html/*
 
 # Create new CRUD index file.
-sudo echo <<-EOF
-<!DOCTYPE html>
-<html>
-<head>
-    <title>DB CRUD TEST</title>
-</head>
-<body>
-<?php print("Hello World!"); ?>
-</body>
-</html>
-EOF > /var/www/html/index.php
+sudo cat <<-EOF > /var/www/html/index.php
+<?php phpinfo(); ?>
+EOF
 
-# Restart NGINX to apply config
+# Restart PHP & NGINX to apply config
 sudo systemctl restart nginx
+sudo systemctl restart php5-fpm
