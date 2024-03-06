@@ -7,7 +7,7 @@ sudo apt update
 sudo apt install nginx -y
 
 # Install PHP module for NGINX
-sudo apt install php5-common php5-cli php5-fpm -y
+sudo apt install php8.1-fpm -y
 
 # Remove the old default landing page symbolic link
 sudo rm /etc/nginx/sites-enabled/default
@@ -31,14 +31,12 @@ server {
     server_name _;
 
     location / {
-        try_files $uri $uri/ =404;
+        try_files \$uri \$uri/ \$uri/index.php =404;
     }
 
     location ~ \.php$ {
-        fastcgi_split_path_info ^(.+\.php)(/.+)$;
-        fastcgi_pass unix:/var/run/php5-fpm.sock;
-        fastcgi_index index.php;
-        include fastcgi_params;
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.1-fpm.sock;
     }
 }
 EOF
