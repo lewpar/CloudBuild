@@ -9,6 +9,9 @@ sudo apt install nginx -y
 # Install PHP module for NGINX
 sudo apt install php8.1-fpm -y
 
+# Install MySQL driver for php
+sudo apt install php-mysql -y
+
 # Remove the old default landing page symbolic link
 sudo rm /etc/nginx/sites-enabled/default
 
@@ -46,7 +49,99 @@ sudo rm -r /var/www/html/*
 
 # Create new CRUD index file.
 sudo cat <<-EOF > /var/www/html/index.php
-<?php phpinfo(); ?>
+<?php
+// Database connection parameters
+\$host = "${host}"; // Change this to your database host
+\$dbname = "${database}"; // Change this to your database name
+\$username = "${username}"; // Change this to your database username
+\$password = "${password}"; // Change this to your database password
+
+try {
+    // Connect to the database using PDO
+    \$pdo = new PDO("mysql:host=\$host;dbname=\$dbname", \$username, \$password);
+    
+    // Set PDO to throw exceptions on error
+    \$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Check if the items table exists, if not, create it
+    \$pdo->exec("CREATE TABLE IF NOT EXISTS items (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL,
+                    description TEXT
+                )");
+    
+    // Function to add an item to the database
+    function addItem(\$name, \$description) {
+        global \$pdo;
+        \$stmt = \$pdo->prepare("INSERT INTO items (name, description) VALUES (?, ?)");
+        \$stmt->execute([\$name, \$description]);
+        echo "Item added successfully.";
+    }
+    
+    // Function to remove an item from the database
+    function removeItem(\$id) {
+        global \$pdo;
+        \$stmt = \$pdo->prepare("DELETE FROM items WHERE id = ?");
+        \$stmt->execute([\$id]);
+        echo "Item removed successfully.";
+    }
+    
+    // Check if form is submitted for adding an item
+    if(isset(\$_POST['add_item'])) {
+        \$name = \$_POST['name'];
+        \$description = \$_POST['description'];
+        addItem(\$name, \$description);
+    }
+    
+    // Check if form is submitted for removing an item
+    if(isset(\$_POST['remove_item'])) {
+        \$id = \$_POST['id'];
+        removeItem(\$id);
+    }
+    
+    // Fetch all items from the database
+    \$stmt = \$pdo->query("SELECT * FROM items");
+    \$items = \$stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+} catch(PDOException \$e) {
+    // If an error occurs, display the error message
+    die("Error: " . \$e->getMessage());
+}
+?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Item Management</title>
+</head>
+<body>
+    <h2>Add Item</h2>
+    <form method="post">
+        <label>Name:</label><br>
+        <input type="text" name="name"><br>
+        <label>Description:</label><br>
+        <textarea name="description"></textarea><br>
+        <input type="submit" name="add_item" value="Add Item">
+    </form>
+    
+    <h2>Remove Item</h2>
+    <form method="post">
+        <label>Item ID:</label><br>
+        <input type="text" name="id"><br>
+        <input type="submit" name="remove_item" value="Remove Item">
+    </form>
+    
+    <h2>Items</h2>
+    <ul>
+        <?php foreach(\$items as \$item): ?>
+        <li>
+            <strong><?php echo \$item['id']; ?>:<?php echo \$item['name']; ?>:</strong> <?php echo \$item['description']; ?>
+        </li>
+        <?php endforeach; ?>
+    </ul>
+</body>
+</html>
+
 EOF
 
 # Restart PHP & NGINX to apply config

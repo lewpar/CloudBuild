@@ -14,10 +14,13 @@ resource "aws_instance" "this" {
   }
 
   user_data = templatefile("./webserver-setup.tftpl", { 
+    host = aws_db_instance.cloudbuild-rds.address
     database = var.database.database, 
     username = var.database.username, 
     password = var.database.password 
     })
+
+    depends_on = [ aws_db_instance.cloudbuild-rds ]
 }
 
 // The keypair to be used for SSH
