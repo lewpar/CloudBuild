@@ -1,4 +1,4 @@
-// WireGuard EC2 Instance
+// CloudBuild EC2 Instance
 resource "aws_instance" "this" {
   ami           = "ami-04f5097681773b989" // Ubuntu ap-southeast-2
   instance_type = "t2.micro"
