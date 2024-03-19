@@ -19,6 +19,7 @@ resource "aws_db_instance" "cloudbuild-rds" {
     vpc_security_group_ids = [ aws_security_group.cloudbuild-rds-nsg.id ]
 
     skip_final_snapshot = true
+    multi_az = false
 }
 
 // Test RDS Subnet Group
