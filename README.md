@@ -3,8 +3,9 @@ This is an assessment project for my CyberSecurity Cloud unit.
 
 This deploys:
 - A VPC with 1 public subnet and 2 private subnets.
-- An EC2 instance as a web server.
+- An EC2 instance as a web server with a PHP test database index.
 - An RDS instance that allows connection from the EC2 instance.
+- An S3 bucket with a public access policy.
 
 ## Usage
 - Install Terraform
